@@ -1,34 +1,56 @@
 const express = require("express");
 const https = require("https");
+const path = require("path");
 
 const app = express();
 
 app.get("/", function(req, res) {
   res.send("hello");
-  console.log(bestSum(0, [2, 4]));
-  console.log(bestSum(8, [2, 3, 5, 1]));
-  console.log(bestSum(7, [5, 3, 4, 7]));
-  console.log(bestSum(300, [7, 14]));
+  console.log(bestSum(7, [5, 3, 4, 7])); //[7]
+  console.log(bestSum(8, [2, 3, 5])); //[3,5]
+  console.log(bestSum(8, [1, 4, 5])); //[4,4]
+  console.log(bestSum(100, [1, 2, 5, 25])); //[25,25,25,25]
+});
+
+app.get("/Construct", function(req, res) {
+  res.send();
+  console.log("constructor is on");
 });
 
 const bestSum = (targetSum, numbers, memo={}) => {
-  if (targetSum in memo) return memo;
-  if (targetSum < 0) return null;
+  if (targetSum in memo) return memo[targetSum];
   if (targetSum === 0) return [];
+  if (targetSum < 0) return null;
 
+  let shortestCombination = null;
 
   for (let num of numbers) {
     const remainder = targetSum - num;
-    const remainderResult = bestSum(remainder, numbers, memo);
+    const remainderCombination = bestSum(remainder, numbers, memo);
 
-    if (remainderResult !== null) {
-      memo[targetSum] = [ ...remainderResult, num];
-      return memo[targetSum];
+    if (remainderCombination !== null) {
+      const combination = [ ... remainderCombination, num ]
+      //if the combination is shorter than the current 'shortest'. update
+      if (shortestCombination === null || combination.length < shortestCombination.length) {
+        shortestCombination = combination;
+      }
     }
   }
-  
-  return null;
+  memo[targetSum] = shortestCombination;
+  return shortestCombination;
 }
+
+// m = target sum
+// n - numbers.length
+
+// brute force
+// time: O(n^m * m)
+// space: O(m^2)
+
+// Memoized
+// time: O(m^2 * n)
+// space: O(m^2)
+
 
 const howSum = (targetSum, numbers, memo={}) => {
   if (targetSum in memo) return memo[targetSum];
