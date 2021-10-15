@@ -5,19 +5,64 @@ const app = express();
 
 app.get("/", function(req, res) {
   res.send("hello");
-  console.log(gridTraveler(18,18));
-  console.log(canSum(5, [2, 3]));
-  console.log(canSum(5, [2, 2, 5, 1]));
-  console.log(canSum(5, [2, 3, 5, 1, 8, 19, 122, 23]));
+  console.log(bestSum(0, [2, 4]));
+  console.log(bestSum(8, [2, 3, 5, 1]));
+  console.log(bestSum(7, [5, 3, 4, 7]));
+  console.log(bestSum(300, [7, 14]));
 });
 
-const canSum = (targetSum, numbers) => {
-  if (targetSum === 0) return true;
+const bestSum = (targetSum, numbers, memo={}) => {
+  if (targetSum in memo) return memo;
+  if (targetSum < 0) return null;
+  if (targetSum === 0) return [];
+
 
   for (let num of numbers) {
     const remainder = targetSum - num;
-    if (canSum(remainder, numbers) === true) return true;
+    const remainderResult = bestSum(remainder, numbers, memo);
+
+    if (remainderResult !== null) {
+      memo[targetSum] = [ ...remainderResult, num];
+      return memo[targetSum];
+    }
   }
+  
+  return null;
+}
+
+const howSum = (targetSum, numbers, memo={}) => {
+  if (targetSum in memo) return memo[targetSum];
+  if (targetSum < 0) return null;
+  if (targetSum === 0) return [];
+
+
+  for (let num of numbers) {
+    const remainder = targetSum - num;
+    const remainderResult = howSum(remainder, numbers, memo);
+
+    if (remainderResult !== null) {
+      memo[targetSum] = [ ...remainderResult, num];
+      return memo[targetSum];
+    }
+  }
+  memo[targetSum] = null;
+  return null;
+}
+
+const canSum = (targetSum, numbers, memo={}) => {
+  if (targetSum in memo) return [targetSum];
+  if (targetSum === 0) return true;
+  if (targetSum < 0) return false;
+
+  for (let num of numbers) {
+    const remainder = targetSum - num;
+    if (canSum(remainder, numbers, memo) === true) {
+      memo [targetSum] = true;
+      return true;
+    }
+  }
+  memo[targetSum] = false;
+  return false;
 }
 
 const gridTraveler = (m, n, memo={}) => {
